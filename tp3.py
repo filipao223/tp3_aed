@@ -1,3 +1,5 @@
+import sys
+
 class Node(object):
     """docstring for Node."""
     def __init__(self, palavra):
@@ -10,10 +12,10 @@ class Lista(object):
     """docstring for lista."""
     def __init__(self):
         super(Lista, self).__init__()
-        self.head = node("")
+        self.head = Node("")
 
     def add(self,palavra):
-        current = head.nextNode
+        current = self.head.nextNode
 
         if current is None:
             current = Node(palavra)
@@ -25,27 +27,50 @@ class Lista(object):
 
 
 class Tabela(object):
-    """docstring for tabela."""
+    """docstring for Tabela."""
     def __init__(self, size):
-        super(tabela, self).__init__()
+        super(Tabela, self).__init__()
         self.size = size
         self.listas = [None] * size
 
     def add(self, hashValue, palavra):
         try:
-            listas[hashValue].add(palavra)
+            self.listas[hashValue].add(palavra)
             return True
-        except IndexError:
+        except:
             #Nao existe valor hash
-            listas.append(hashValue)
-            listas[hashValue].add(palavra)
+            self.listas[hashValue] = Lista()
+            self.listas[hashValue].add(palavra)
 
         return False
 
-def hash(key, size):
-    return key * key % size
+def hash(pal, size):
+    sum = 0
+    for char in pal:
+        sum += ord(char)
+
+    return sum % size
 
 def main():
+    try:
+        fileInput = sys.argv[1]
+    except IndexError:
+        print("Wrong number of arguments")
+        sys.exit(0)
+
+    #Tabela de hash
+    tableSize = 4096
+    tabela = Tabela(tableSize)
+
+    with open(fileInput, "r") as f:
+        #Convert to list of words
+        listaPalavras = [pal for pal in f.read().split()]
+
+    for pal in listaPalavras:
+        #Add to hash table each word
+        tabela.add(hash(pal, tableSize), pal)
+
+
 
 if __name__ == "__main__":
     main()
