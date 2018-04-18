@@ -1,4 +1,5 @@
 import sys
+from pympler import asizeof
 
 class Node(object):
     """docstring for Node."""
@@ -59,10 +60,14 @@ def main():
         sys.exit(0)
 
     #Tabela de hash
-    tableSize = 4096
+    tableSize = 65536
     tabela = Tabela(tableSize)
 
-    with open(fileInput, "r") as f:
+    print(asizeof.asizeof(tabela))
+
+    wordsFilePath = "words/wordlist-preao-latest.txt"
+
+    with open(wordsFilePath, "r") as f:
         #Convert to list of words
         listaPalavras = [pal for pal in f.read().split()]
 
@@ -70,6 +75,7 @@ def main():
         #Add to hash table each word
         tabela.add(hash(pal, tableSize), pal)
 
+    print(asizeof.asizeof(tabela))
 
 
 if __name__ == "__main__":
