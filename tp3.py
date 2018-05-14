@@ -1,6 +1,7 @@
 import sys
 
 pontos = ['!', '?', '.', ',', '<', '>', '(', ')', '$', '€', '@', '«', '»', '-']
+alf = 'abcdefghijklmnopqrstuvwxyz'
 
 class Node(object):
     """docstring for Node."""
@@ -63,6 +64,15 @@ class Tabela(object):
 
         return False
 
+def editWord(palavra):
+    #Adicionar uma letra
+    addOneLetterRes = [palavra[:i]+letra+palavra[i:] for i in range(len(palavra)+1) for letra in alf]
+    delOneLetterRes = [palavra[:i]+palavra[i+1:] for i in range(len(palavra))]
+    repOneLetterRes = [palavra[:i]+letra+palavra[i+1:] for i in range(len(palavra)) for letra in alf]
+    swtOneLetterRes = [palavra[:i]+palavra[i+1]+palavra[i]+palavra[i+2:] for i in range(len(palavra)) if(i < len(palavra)-1)]
+    finalList = [addOneLetterRes, delOneLetterRes, repOneLetterRes, swtOneLetterRes]
+    return finalList
+
 def delPont(palavra):
     hasChanged = True
     while(hasChanged):
@@ -114,6 +124,7 @@ def main():
         finalListaPals.append(delPont(pal))
 
     print(finalListaPals)
+    print(len(editWord("teh")))
 
 
 if __name__ == "__main__":
