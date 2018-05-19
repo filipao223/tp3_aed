@@ -5,9 +5,10 @@ alf = 'abcdefghijklmnopqrstuvwxyz'
 
 class Node(object):
     """docstring for Node."""
-    def __init__(self, palavra):
+    def __init__(self, palavra, freq):
         super(Node, self).__init__()
         self.palavra = palavra
+        self.frequencia = freq
         self.nextNode = None
 
 
