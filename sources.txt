@@ -1,0 +1,7 @@
+---Geral--
+https://norvig.com/spell-correct.html
+--Lista de palavras, frequencia---
+https://github.com/dwyl/english-words
+http://natura.di.uminho.pt/download/sources/Dictionaries/wordlists/
+http://www.insightin.com/esl/
+https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/Portuguese_wordlist
