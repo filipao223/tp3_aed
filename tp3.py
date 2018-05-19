@@ -70,8 +70,7 @@ def editWord(palavra):
     delOneLetterRes = [palavra[:i]+palavra[i+1:] for i in range(len(palavra))]
     repOneLetterRes = [palavra[:i]+letra+palavra[i+1:] for i in range(len(palavra)) for letra in alf]
     swtOneLetterRes = [palavra[:i]+palavra[i+1]+palavra[i]+palavra[i+2:] for i in range(len(palavra)) if(i < len(palavra)-1)]
-    finalList = [addOneLetterRes, delOneLetterRes, repOneLetterRes, swtOneLetterRes]
-    return finalList
+    return addOneLetterRes + delOneLetterRes + repOneLetterRes + swtOneLetterRes
 
 def delPont(palavra):
     hasChanged = True
@@ -93,6 +92,8 @@ def hash(pal, size):
     return sum % size
 
 def main():
+
+    #Verifica os parametros
     try:
         fileInput = sys.argv[1]
     except IndexError:
@@ -103,6 +104,7 @@ def main():
     tableSize = 65536
     tabela = Tabela(tableSize)
 
+    #Localizaçao do ficheiro com as palavras do dicionario
     wordsFilePath = "words/wordlist.txt"
 
     with open(wordsFilePath, "r") as f:
@@ -124,7 +126,8 @@ def main():
         finalListaPals.append(delPont(pal))
 
     print(finalListaPals)
-    print(len(editWord("teh")))
+    letter1Distance = editWord("daf")
+    print(letter1Distance)
 
 
 if __name__ == "__main__":
