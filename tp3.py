@@ -62,8 +62,9 @@ class Tabela(object):
         except:
             return ""
 
-        return False
+        return ""
 
+#A partir de palavra, encontra todas as palavras a uma correçao de distancia
 def editWord(palavra):
     #Adicionar uma letra
     addOneLetterRes = [palavra[:i]+letra+palavra[i:] for i in range(len(palavra)+1) for letra in alf]
@@ -72,6 +73,7 @@ def editWord(palavra):
     swtOneLetterRes = [palavra[:i]+palavra[i+1]+palavra[i]+palavra[i+2:] for i in range(len(palavra)) if(i < len(palavra)-1)]
     return addOneLetterRes + delOneLetterRes + repOneLetterRes + swtOneLetterRes
 
+#Apaga a pontuaçao da palavra
 def delPont(palavra):
     hasChanged = True
     while(hasChanged):
@@ -84,6 +86,7 @@ def delPont(palavra):
 
     return palavra
 
+#Função de dispersão
 def hash(pal, size):
     sum = 0
     for char in pal:
@@ -92,6 +95,10 @@ def hash(pal, size):
     return sum % size
 
 def main():
+    tempInputPals = []
+    finalInputPals = []
+    finalOutputPals = []
+    distanciaErro1 = []
 
     #Verifica os parametros
     try:
@@ -101,33 +108,33 @@ def main():
         sys.exit(0)
 
     #Tabela de hash
-    tableSize = 65536
+    tableSize = 4049 #Numero de palavras da lista é 3665
     tabela = Tabela(tableSize)
 
     #Localizaçao do ficheiro com as palavras do dicionario
-    wordsFilePath = "words/wordlist.txt"
+    wordsFilePath = "words/sortedWords_small.txt"
 
+    #Adiciona as palavras do dicionario na tabela de dispersao
     with open(wordsFilePath, "r") as f:
-        #Convert to list of words
         listaPalavras = [pal for pal in f.read().split()]
 
     for pal in listaPalavras:
-        #Add to hash table each word
         tabela.add(hash(pal, tableSize), pal)
 
     #Le as palavras do input
-    listaPalavras = []
     with open(fileInput, "r") as f:
-        listaPalavras = [pal for pal in f.read().split()]
+        tempInputPals = [pal for pal in f.read().split()]
 
     #Remove pontuacao das palavras (se existir)
-    finalListaPals = []
     for pal in listaPalavras:
-        finalListaPals.append(delPont(pal))
+        finalInputPals.append(delPont(pal))
 
-    print(finalListaPals)
-    letter1Distance = editWord("daf")
-    print(letter1Distance)
+    #Verifica agora se ha erros ortograficos
+    for pal in finalInputPals:
+        if(tabela.get(hash(pal, tableSize), pal) != ""): finalOutputPals.append(pal)
+        else:
+            #Primeiro os erros de distancia 1
+            distanciaErro1 = editWord(pal)
 
 
 if __name__ == "__main__":
