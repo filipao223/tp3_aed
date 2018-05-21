@@ -21,12 +21,15 @@ class Lista(object):
 
     def add(self, palavra):
         current = self.head
-        if current.nextNode is None:
-            current.nextNode = Node(palavra)
-            self.numero += 1
-            return True
-        else:
-            current = current.nextNode
+        while current is not None:
+            if current.nextNode is None:
+                current.nextNode = Node(palavra)
+                self.numero += 1
+                return True
+            elif current.palavra == palavra:
+                return False
+            else:
+                current = current.nextNode
 
         return False
 
@@ -36,14 +39,15 @@ class Lista(object):
             return ""
         else:
             while current is not None:
-                if current.palavra == palavra: return palavra
+                if current.palavra == palavra:
+                    return palavra
                 current = current.nextNode
             return ""
 
-    def printLista(self, max_list, head, i):
+    def print_lista(self, max_list, head, i):
         if head is not None and i != max_list:
             i += 1
-            return head.palavra + "-->" + self.printLista(max_list, head.nextNode, i)
+            return head.palavra + "-->" + self.print_lista(max_list, head.nextNode, i)
         else:
             return ""
 
@@ -64,9 +68,9 @@ class Tabela(object):
             self.listas[hash_value] = Lista()
             self.listas[hash_value].add(palavra)
 
-    def get(self, hashValue, palavra):
+    def get(self, hash_value, palavra):
         try:
-            return self.listas[hashValue].get(palavra)
+            return self.listas[hash_value].get(palavra)
         except:
             return ""
 
@@ -80,7 +84,7 @@ class Tabela(object):
                 if i == max_hash_t:
                     return
                 else:
-                    print("lista[" + str(i) + "]:" + self.listas[i].printLista(max_list, self.listas[i].head, 0))
+                    print("lista[" + str(i) + "]:" + self.listas[i].print_lista(max_list, self.listas[i].head, 0))
 
 
 # A partir de palavra, encontra todas as palavras a uma correçao de distancia
@@ -110,13 +114,13 @@ def del_pont(palavra):
 
 
 # Função de dispersão
-def hash(pal, size):
+def hash_function(pal, size):
     sum_ascii = 0
     for letra in pal:
         sum_ascii += ord(letra)
     sum_ascii *= sum_ascii
 
-    if sum_ascii < size*100:
+    while sum_ascii < size*100:
         sum_ascii *= sum_ascii
 
     return sum_ascii % size
@@ -137,23 +141,23 @@ def main():
         sys.exit(0)
 
     # Tabela de hash e tamanho (tamanhos primos)
-    tam_tabela_pals = 32 # SIZE = 4813 Numero de palavras da lista é 3665,
+    tam_tabela_pals = 32  # SIZE = 4813 Numero de palavras da lista é 3665,
     tabela_pals = Tabela(tam_tabela_pals)
-    tam_tabela_freq = 1217 # Numero de frequencias é 1000
+    tam_tabela_freq = 1217  # Numero de frequencias é 1000
     tabela_freq = Tabela(tam_tabela_freq)
 
     # Localizaçao do ficheiro com as palavras do dicionario
     words_file_path = "words/pt_sortedWords_small.txt"
 
     # Adiciona as frequencias de algumas palavras numa tabela de dispersao
-    print(hash("ontei", tam_tabela_pals))
+    print(hash_function("ontei", tam_tabela_pals))
 
     # Adiciona as palavras do dicionario na tabela de dispersao
     with open(words_file_path, "r") as f:
         lista_palavras = [pal for pal in f.read().split()]
 
     for pal in lista_palavras:
-        tabela_pals.add(hash(pal, tam_tabela_pals), pal)
+        tabela_pals.add(hash_function(pal, tam_tabela_pals), pal)
 
     tabela_pals.print_hash(False, 2, 0)
     # Le as palavras do input
@@ -166,8 +170,8 @@ def main():
 
     # Verifica agora se ha erros ortograficos
     for pal in final_input_pals:
-        print(tabela_pals.get(hash(pal, tam_tabela_pals), pal))
-        if tabela_pals.get(hash(pal, tam_tabela_pals), pal) != "":
+        print(tabela_pals.get(hash_function(pal, tam_tabela_pals), pal))
+        if tabela_pals.get(hash_function(pal, tam_tabela_pals), pal) != "":
             final_output_pals.append(pal)
         else:
             # Primeiro os erros de distancia 1
