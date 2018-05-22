@@ -1,5 +1,9 @@
 ---Geral--
 https://norvig.com/spell-correct.html
+
+---Funçºao de dispersao---
+http://www.cse.yorku.ca/~oz/hash.html
+
 --Lista de palavras, frequencia---
 https://github.com/dwyl/english-words
 http://natura.di.uminho.pt/download/sources/Dictionaries/wordlists/

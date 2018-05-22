@@ -1,0 +1,26 @@
+-----------Função de dispersão-------------------
+Para a função de dispersão:
+	
+sum_ascii = 0
+    for letra in pal:
+        sum_ascii += ord(letra)
+    sum_ascii *= sum_ascii
+
+    while sum_ascii < size*100:
+        sum_ascii *= sum_ascii
+
+    return sum_ascii % size
+
+é produzido um rácio de colisão de 71.3% para o tamanho 4813.
+
+Para o mesmo tamanho, a função sdbm:
+
+	hash_value = 0
+
+    for letra in pal:
+        hash_value = ord(letra) + (hash_value << 6) + (hash_value << 16) - hash_value
+
+    return hash_value % size
+
+produz apenas um rácio de colisão de 29.8%
+-----------------------------------------------------------

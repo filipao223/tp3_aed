@@ -58,15 +58,18 @@ class Tabela(object):
         super(Tabela, self).__init__()
         self.size = size
         self.listas = [None] * size
+        self.entries = 0
 
     def add(self, hash_value, palavra):
         try:
             self.listas[hash_value].add(palavra)
+            self.entries += 1
             return True
         except:
             # Nao existe valor hash
             self.listas[hash_value] = Lista()
             self.listas[hash_value].add(palavra)
+            self.entries += 1
 
     def get(self, hash_value, palavra):
         try:
@@ -85,6 +88,17 @@ class Tabela(object):
                     return
                 else:
                     print("lista[" + str(i) + "]:" + self.listas[i].print_lista(max_list, self.listas[i].head, 0))
+
+    # Calcula o racio de colisao de entradas da tabela
+    def collision_rate(self):
+        total_collisions = 0
+        for i in range(self.size):
+            if self.listas[i] is not None and self.listas[i].head.nextNode is not None:
+                current = self.listas[i].head.nextNode.nextNode
+                while current is not None:
+                    total_collisions += 1
+                    current = current.nextNode
+        print(round(total_collisions / self.entries * 100, 2), "% de colisao")
 
 
 # A partir de palavra, encontra todas as palavras a uma correçao de distancia
@@ -115,15 +129,13 @@ def del_pont(palavra):
 
 # Função de dispersão
 def hash_function(pal, size):
-    sum_ascii = 0
+    hash_value = 0
+
     for letra in pal:
-        sum_ascii += ord(letra)
-    sum_ascii *= sum_ascii
+        hash_value = ord(letra) + (hash_value << 6) + (hash_value << 16) - hash_value
 
-    while sum_ascii < size*100:
-        sum_ascii *= sum_ascii
+    return hash_value % size
 
-    return sum_ascii % size
 
 
 def main():
@@ -133,6 +145,8 @@ def main():
     distancia_erro1 = []
     distancia_erro2 = []
 
+    print("á, à")
+
     # Verifica os parametros
     try:
         fileInput = sys.argv[1]
@@ -141,7 +155,7 @@ def main():
         sys.exit(0)
 
     # Tabela de hash e tamanho (tamanhos primos)
-    tam_tabela_pals = 32  # SIZE = 4813 Numero de palavras da lista é 3665,
+    tam_tabela_pals = 4813  # Numero de palavras da lista é 3665, numero primo mais proximo de 1.33*3665
     tabela_pals = Tabela(tam_tabela_pals)
     tam_tabela_freq = 1217  # Numero de frequencias é 1000
     tabela_freq = Tabela(tam_tabela_freq)
@@ -159,7 +173,8 @@ def main():
     for pal in lista_palavras:
         tabela_pals.add(hash_function(pal, tam_tabela_pals), pal)
 
-    tabela_pals.print_hash(False, 2, 0)
+    tabela_pals.collision_rate()
+    # tabela_pals.print_hash(False, 5, 10)
     # Le as palavras do input
     with open(fileInput, "r") as f:
         temp_input_pals = [pal for pal in f.read().split()]
@@ -170,17 +185,16 @@ def main():
 
     # Verifica agora se ha erros ortograficos
     for pal in final_input_pals:
-        print(tabela_pals.get(hash_function(pal, tam_tabela_pals), pal))
         if tabela_pals.get(hash_function(pal, tam_tabela_pals), pal) != "":
             final_output_pals.append(pal)
         else:
             # Primeiro os erros de distancia 1
             distancia_erro1 = edit_word(pal)
-            print(distancia_erro1)
+            # print(distancia_erro1)
             # E os erros de distancia 2
-            """for pal in distancia_erro1:
+            for pal in distancia_erro1:
                 distancia_erro2 += edit_word(pal)
-            print(distancia_erro2, len(distancia_erro2))"""
+            # print(distancia_erro2, len(distancia_erro2))
 
     print(final_output_pals)
     
