@@ -23,4 +23,8 @@ Para o mesmo tamanho, a função sdbm:
     return hash_value % size
 
 produz apenas um rácio de colisão de 29.8%
+
+Tamanho 1322963:
+SDMB -> 29.69%
+Anterior -> demora demasiado tempo
 -----------------------------------------------------------

@@ -9,6 +9,7 @@ class Node(object):
     def __init__(self, palavra):
         super(Node, self).__init__()
         self.palavra = palavra
+        self.frequencia: int = 0  # Quanto maior, mais frequente é a palavra
         self.nextNode = None
 
 
@@ -36,13 +37,22 @@ class Lista(object):
     def get(self, palavra):
         current = self.head.nextNode
         if current is None:
-            return ""
+            return None
         else:
             while current is not None:
                 if current.palavra == palavra:
-                    return palavra
+                    return current
                 current = current.nextNode
-            return ""
+            return None
+
+    def set_freq(self, pal, freq: int):
+        current = self.head.nextNode
+        while current is not None:
+            if current.palavra == pal or current.palavra.lower() == pal.lower():
+                current.frequencia = freq
+                return True
+            current = current.nextNode
+        return False
 
     def print_lista(self, max_list, head, i):
         if head is not None and i != max_list:
@@ -75,9 +85,15 @@ class Tabela(object):
         try:
             return self.listas[hash_value].get(palavra)
         except:
-            return ""
+            return None
 
-        return ""
+    def set_freq(self, hash_value, pal, freq: int):
+        try:
+            if self.listas[hash_value].set_freq(pal, freq):
+                return True
+        except:
+            pass
+        return False
 
     def print_hash(self, no_empty, max_hash_t, max_list):
         for i in range(self.size):
@@ -127,7 +143,7 @@ def del_pont(palavra):
     return palavra
 
 
-# Função de dispersão
+# Função de dispersão (SDBM)
 def hash_function(pal, size):
     hash_value = 0
 
@@ -137,7 +153,6 @@ def hash_function(pal, size):
     return hash_value % size
 
 
-
 def main():
     temp_input_pals = []
     final_input_pals = []
@@ -145,38 +160,40 @@ def main():
     distancia_erro1 = []
     distancia_erro2 = []
 
-    print("á, à")
-
     # Verifica os parametros
     try:
-        fileInput = sys.argv[1]
+        file_input = sys.argv[1]
     except IndexError:
         print("Wrong number of arguments")
         sys.exit(0)
 
     # Tabela de hash e tamanho (tamanhos primos)
-    tam_tabela_pals = 4813  # Numero de palavras da lista é 3665, numero primo mais proximo de 1.33*3665
+    tam_tabela_pals = 1322963  # Num de palavras da lista é 994707, numero primo mais proximo de 1.33*994707 -> 1322963
     tabela_pals = Tabela(tam_tabela_pals)
-    tam_tabela_freq = 1217  # Numero de frequencias é 1000
-    tabela_freq = Tabela(tam_tabela_freq)
 
     # Localizaçao do ficheiro com as palavras do dicionario
-    words_file_path = "words/pt_sortedWords_small.txt"
-
-    # Adiciona as frequencias de algumas palavras numa tabela de dispersao
-    print(hash_function("ontei", tam_tabela_pals))
+    words_file_path = "words/pt_sortedWords_big.txt"
+    words_freq_path = "words/pt_wordFrequency_big.txt"
 
     # Adiciona as palavras do dicionario na tabela de dispersao
-    with open(words_file_path, "r") as f:
+    with open(words_file_path, mode="r", encoding="utf-8") as f:
         lista_palavras = [pal for pal in f.read().split()]
 
     for pal in lista_palavras:
         tabela_pals.add(hash_function(pal, tam_tabela_pals), pal)
 
+    # Adiciona as frequencias de algumas palavras na tabela de dispersao
+    with open(words_freq_path, mode="r", encoding="utf-8") as f:
+        content = [line.strip() for line in f.readlines()]
+
+    for linha in content:
+        splits = linha.split()
+        tabela_pals.set_freq(hash_function(splits[1], tam_tabela_pals), splits[1], int(splits[0]))
+
     tabela_pals.collision_rate()
-    # tabela_pals.print_hash(False, 5, 10)
+
     # Le as palavras do input
-    with open(fileInput, "r") as f:
+    with open(file_input, "r") as f:
         temp_input_pals = [pal for pal in f.read().split()]
 
     # Remove pontuacao das palavras (se existir)
@@ -185,16 +202,54 @@ def main():
 
     # Verifica agora se ha erros ortograficos
     for pal in final_input_pals:
-        if tabela_pals.get(hash_function(pal, tam_tabela_pals), pal) != "":
+        returned_node = tabela_pals.get(hash_function(pal, tam_tabela_pals), pal)
+        if returned_node is not None:
             final_output_pals.append(pal)
         else:
             # Primeiro os erros de distancia 1
             distancia_erro1 = edit_word(pal)
-            # print(distancia_erro1)
+
             # E os erros de distancia 2
-            for pal in distancia_erro1:
-                distancia_erro2 += edit_word(pal)
-            # print(distancia_erro2, len(distancia_erro2))
+            for pal_2 in distancia_erro1:
+                distancia_erro2 += edit_word(pal_2)
+
+            # Guarda num array as 5 palavras que existem mais frequentes
+            most_frequent = [None] * 5
+            least_frequent_index = 0
+
+            for edited_word in distancia_erro2:
+                returned_node = tabela_pals.get(hash_function(edited_word, tam_tabela_pals), edited_word)
+
+                if returned_node is not None and returned_node not in most_frequent:
+                    if None in most_frequent:
+                        # Se há um espaço livre na lista, procura-o e guarda lá o node recebido
+                        for i in range(5):
+                            if most_frequent[i] is None:
+                                most_frequent[i] = returned_node
+                    else:
+                        # O array esta cheio, procura o node com a palavra menos frequente aí contida
+                        for i in range(5):
+                            if most_frequent[i].frequencia < most_frequent[least_frequent_index].frequencia:
+                                least_frequent_index = i
+
+                        # Substitui então a dita palavra pela nova se esta for mais frequente
+                        if most_frequent[least_frequent_index].frequencia < returned_node.frequencia:
+                            most_frequent[least_frequent_index] = returned_node
+                            least_frequent_index = 0
+
+            correction_rejected = True
+            print("For word ", pal, " did you mean: (Y-yes N-no)")
+            # Ordena por frequência
+            for node in sorted(most_frequent, key=lambda x: x.frequencia, reverse=True):
+                print(node.palavra, node.frequencia, "?")
+                choice = input()
+                if choice == "y" or choice == "Y":
+                    final_output_pals.append(node.palavra)
+                    correction_rejected = False
+                    break
+
+            if correction_rejected:
+                final_output_pals.append("CORREÇÃO-NÃO-ENCONTRADA")
 
     print(final_output_pals)
     
