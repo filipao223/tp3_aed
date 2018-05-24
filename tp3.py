@@ -1,7 +1,8 @@
 import sys
 
-pontos = ['!', '?', '.', ',', '<', '>', '(', ')', '$', '€', '@', '«', '»', '-']
+pontos = ['!', '?', '.', ',', '<', '>', '(', ')', '$', '€', '@', '«', '»']
 alf = 'abcdefghijklmnopqrstuvwxyz'
+todos_pontos = []  # Pontuação removida
 
 
 class Node(object):
@@ -130,15 +131,18 @@ def edit_word(palavra):
 
 
 # Apaga a pontuaçao da palavra
-def del_pont(palavra):
+def del_pont(palavra, word_number):
     has_changed = True
+    index = 0
     while has_changed:
         has_changed = False
         for char in palavra:
             if char in pontos:
+                todos_pontos.append(char + "|" + str(index) + "|" + str(word_number))
                 has_changed = True
                 palavra = palavra.replace(char, "")
                 break
+            index += 1
 
     return palavra
 
@@ -197,8 +201,12 @@ def main():
         temp_input_pals = [pal for pal in f.read().split()]
 
     # Remove pontuacao das palavras (se existir)
+    i = 0
     for pal in temp_input_pals:
-        final_input_pals.append(del_pont(pal))
+        final_input_pals.append(del_pont(pal, i))
+        i += 1
+
+    print(todos_pontos)
 
     # Verifica agora se ha erros ortograficos
     for pal in final_input_pals:
@@ -259,8 +267,27 @@ def main():
                 if correction_rejected:
                     final_output_pals.append("CORREÇÃO-NÃO-ENCONTRADA")
 
-    print(final_output_pals)
-    
-    
+    # Volta a colocar pontuação
+    frase_final = ""
+    i = 0
+    for pal in final_output_pals:
+        word_not_added = True
+        for pont in todos_pontos:
+            splits = pont.split("|")
+            if int(splits[2]) == i:  # Se esta palavra tinha algum ponto
+                if int(splits[1]) > len(pal) / 2:  # O ponto estava provavelmente no fim
+                    pal += splits[0]
+                    frase_final += (pal + " ")
+                else:  # O ponto estava provavelmente no inicio
+                    splits[0] += pal
+                    frase_final += (splits[0] + " ")
+                word_not_added = False
+            i += 1
+        if word_not_added:
+            frase_final += (pal + " ")
+
+    print(frase_final)
+
+
 if __name__ == "__main__":
     main()
