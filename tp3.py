@@ -206,50 +206,58 @@ def main():
         if returned_node is not None:
             final_output_pals.append(pal)
         else:
-            # Primeiro os erros de distancia 1
-            distancia_erro1 = edit_word(pal)
+            # Pergunta se a palavra deve ser guardada no dicionario
+            print("Pretende guardar --", pal, "-- no dicionario? (Y-sim N-nao)")
+            choice = input()
 
-            # E os erros de distancia 2
-            for pal_2 in distancia_erro1:
-                distancia_erro2 += edit_word(pal_2)
+            if choice == "y" or choice == "Y":
+                tabela_pals.add(hash_function(pal, tam_tabela_pals), pal)
+                final_output_pals.append(pal)
+            else:
+                # Primeiro os erros de distancia 1
+                distancia_erro1 = edit_word(pal)
 
-            # Guarda num array as 5 palavras que existem mais frequentes
-            most_frequent = [None] * 5
-            least_frequent_index = 0
+                # E os erros de distancia 2
+                for pal_2 in distancia_erro1:
+                    distancia_erro2 += edit_word(pal_2)
 
-            for edited_word in distancia_erro2:
-                returned_node = tabela_pals.get(hash_function(edited_word, tam_tabela_pals), edited_word)
+                # Guarda num array as 5 palavras que existem mais frequentes
+                most_frequent = [None] * 5
+                least_frequent_index = 0
 
-                if returned_node is not None and returned_node not in most_frequent:
-                    if None in most_frequent:
-                        # Se há um espaço livre na lista, procura-o e guarda lá o node recebido
-                        for i in range(5):
-                            if most_frequent[i] is None:
-                                most_frequent[i] = returned_node
-                    else:
-                        # O array esta cheio, procura o node com a palavra menos frequente aí contida
-                        for i in range(5):
-                            if most_frequent[i].frequencia < most_frequent[least_frequent_index].frequencia:
-                                least_frequent_index = i
+                for edited_word in distancia_erro2:
+                    returned_node = tabela_pals.get(hash_function(edited_word, tam_tabela_pals), edited_word)
 
-                        # Substitui então a dita palavra pela nova se esta for mais frequente
-                        if most_frequent[least_frequent_index].frequencia < returned_node.frequencia:
-                            most_frequent[least_frequent_index] = returned_node
-                            least_frequent_index = 0
+                    if returned_node is not None and returned_node not in most_frequent:
+                        if None in most_frequent:
+                            # Se há um espaço livre na lista, procura-o e guarda lá o node recebido
+                            for i in range(5):
+                                if most_frequent[i] is None:
+                                    most_frequent[i] = returned_node
+                        else:
+                            # O array esta cheio, procura o node com a palavra menos frequente aí contida
+                            for i in range(5):
+                                if most_frequent[i].frequencia < most_frequent[least_frequent_index].frequencia:
+                                    least_frequent_index = i
 
-            correction_rejected = True
-            print("For word ", pal, " did you mean: (Y-yes N-no)")
-            # Ordena por frequência
-            for node in sorted(most_frequent, key=lambda x: x.frequencia, reverse=True):
-                print(node.palavra, node.frequencia, "?")
-                choice = input()
-                if choice == "y" or choice == "Y":
-                    final_output_pals.append(node.palavra)
-                    correction_rejected = False
-                    break
+                            # Substitui então a dita palavra pela nova se esta for mais frequente
+                            if most_frequent[least_frequent_index].frequencia < returned_node.frequencia:
+                                most_frequent[least_frequent_index] = returned_node
+                                least_frequent_index = 0
 
-            if correction_rejected:
-                final_output_pals.append("CORREÇÃO-NÃO-ENCONTRADA")
+                correction_rejected = True
+                print("For word ", pal, " did you mean: (Y-yes N-no)")
+                # Ordena por frequência
+                for node in sorted(most_frequent, key=lambda x: x.frequencia, reverse=True):
+                    print(node.palavra, "?")
+                    choice = input()
+                    if choice == "y" or choice == "Y":
+                        final_output_pals.append(node.palavra)
+                        correction_rejected = False
+                        break
+
+                if correction_rejected:
+                    final_output_pals.append("CORREÇÃO-NÃO-ENCONTRADA")
 
     print(final_output_pals)
     
