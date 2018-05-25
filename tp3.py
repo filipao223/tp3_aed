@@ -14,6 +14,12 @@ class Node(object):
         self.nextNode = None
 
 
+class NodeHist(Node):
+    def __init__(self, palavra, correcao):
+        super(NodeHist, self).__init__(palavra)
+        self.correcao = correcao
+
+
 class Lista(object):
     """docstring for lista."""
     def __init__(self):
@@ -26,6 +32,20 @@ class Lista(object):
         while current is not None:
             if current.nextNode is None:
                 current.nextNode = Node(palavra)
+                self.numero += 1
+                return True
+            elif current.palavra == palavra:
+                return False
+            else:
+                current = current.nextNode
+
+        return False
+
+    def add_correcao(self, palavra, correcao):
+        current = self.head
+        while current is not None:
+            if current.nextNode is None:
+                current.nextNode = NodeHist(palavra, correcao)
                 self.numero += 1
                 return True
             elif current.palavra == palavra:
@@ -80,6 +100,17 @@ class Tabela(object):
             # Nao existe valor hash
             self.listas[hash_value] = Lista()
             self.listas[hash_value].add(palavra)
+            self.entries += 1
+
+    def add_correcao(self, hash_value, palavra, correcao):
+        try:
+            self.listas[hash_value].add_correcao(palavra, correcao)
+            self.entries += 1
+            return True
+        except:
+            # Nao existe valor hash
+            self.listas[hash_value] = Lista()
+            self.listas[hash_value].add_correcao(palavra, correcao)
             self.entries += 1
 
     def get(self, hash_value, palavra):
@@ -158,10 +189,8 @@ def hash_function(pal, size):
 
 
 def main():
-    temp_input_pals = []
     final_input_pals = []
     final_output_pals = []
-    distancia_erro1 = []
     distancia_erro2 = []
 
     # Verifica os parametros
@@ -174,6 +203,9 @@ def main():
     # Tabela de hash e tamanho (tamanhos primos)
     tam_tabela_pals = 1322963  # Num de palavras da lista é 994707, numero primo mais proximo de 1.33*994707 -> 1322963
     tabela_pals = Tabela(tam_tabela_pals)
+    tam_tabela_hist = 4813
+    tabela_hist = Tabela(tam_tabela_hist)
+
 
     # Localizaçao do ficheiro com as palavras do dicionario
     words_file_path = "words/pt_sortedWords_big.txt"
@@ -222,7 +254,13 @@ def main():
                 tabela_pals.add(hash_function(pal, tam_tabela_pals), pal)
                 final_output_pals.append(pal)
             else:
-                # Primeiro os erros de distancia 1
+                # Primeiro verifica se a correçao existe no historico
+                returned_node = tabela_hist.get(hash_function(pal, tam_tabela_hist), pal)
+                if returned_node is not None:
+                    final_output_pals.append(returned_node.correcao)
+                    continue
+
+                # Não existe, primeiro os erros de distancia 1
                 distancia_erro1 = edit_word(pal)
 
                 # E os erros de distancia 2
@@ -261,6 +299,8 @@ def main():
                     choice = input()
                     if choice == "y" or choice == "Y":
                         final_output_pals.append(node.palavra)
+                        # Coloca no historico a correçao
+                        tabela_hist.add_correcao(hash_function(pal, tam_tabela_hist), pal, node.palavra)
                         correction_rejected = False
                         break
 
@@ -282,7 +322,7 @@ def main():
                     splits[0] += pal
                     frase_final += (splits[0] + " ")
                 word_not_added = False
-            i += 1
+        i += 1
         if word_not_added:
             frase_final += (pal + " ")
 
