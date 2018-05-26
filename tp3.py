@@ -9,7 +9,7 @@ class Node(object):
     """docstring for Node."""
     def __init__(self, palavra):
         super(Node, self).__init__()
-        self.palavra = palavra
+        self.palavra: str = palavra
         self.frequencia: int = 0  # Quanto maior, mais frequente é a palavra
         self.nextNode = None
 
@@ -206,7 +206,6 @@ def main():
     tam_tabela_hist = 4813
     tabela_hist = Tabela(tam_tabela_hist)
 
-
     # Localizaçao do ficheiro com as palavras do dicionario
     words_file_path = "words/pt_sortedWords_big.txt"
     words_freq_path = "words/pt_wordFrequency_big.txt"
@@ -226,8 +225,6 @@ def main():
         splits = linha.split()
         tabela_pals.set_freq(hash_function(splits[1], tam_tabela_pals), splits[1], int(splits[0]))
 
-    tabela_pals.collision_rate()
-
     # Le as palavras do input
     with open(file_input, "r") as f:
         temp_input_pals = [pal for pal in f.read().split()]
@@ -238,10 +235,10 @@ def main():
         final_input_pals.append(del_pont(pal, i))
         i += 1
 
-    print(todos_pontos)
-
     # Verifica agora se ha erros ortograficos
     for pal in final_input_pals:
+        distancia_erro2 = []
+
         returned_node = tabela_pals.get(hash_function(pal, tam_tabela_pals), pal)
         if returned_node is not None:
             final_output_pals.append(pal)
@@ -257,8 +254,11 @@ def main():
                 # Primeiro verifica se a correçao existe no historico
                 returned_node = tabela_hist.get(hash_function(pal, tam_tabela_hist), pal)
                 if returned_node is not None:
-                    final_output_pals.append(returned_node.correcao)
-                    continue
+                    print("Do historico,", returned_node.palavra, "? (Y-yes N-no)")
+                    choice = input()
+                    if choice == "Y" or choice == "y":
+                        final_output_pals.append(returned_node.correcao)
+                        continue
 
                 # Não existe, primeiro os erros de distancia 1
                 distancia_erro1 = edit_word(pal)
