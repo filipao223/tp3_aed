@@ -1,0 +1,3 @@
+Estruturas utilizadas:
+
+Dicionario e Historico: Tabela de dispersão (separate chaining)
