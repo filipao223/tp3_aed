@@ -255,7 +255,7 @@ def main():
                 # Primeiro verifica se a correçao existe no historico
                 returned_node = tabela_hist.get(hash_function(pal, tam_tabela_hist), pal)
                 if returned_node is not None:
-                    print("Do historico,", returned_node.palavra, "? (Y-yes N-no)")
+                    print("Do historico,", returned_node.correcao, "? (Y-yes N-no)")
                     choice = input()
                     if choice == "Y" or choice == "y":
                         final_output_pals.append(returned_node.correcao)
@@ -269,18 +269,16 @@ def main():
                     distancia_erro2 += edit_word(pal_2)
 
                 # Guarda num array as 5 palavras que existem mais frequentes
-                most_frequent = [None] * 5
+                most_frequent = []
                 least_frequent_index = 0
 
                 for edited_word in distancia_erro2:
                     returned_node = tabela_pals.get(hash_function(edited_word, tam_tabela_pals), edited_word)
 
                     if returned_node is not None and returned_node not in most_frequent:
-                        if None in most_frequent:
-                            # Se há um espaço livre na lista, procura-o e guarda lá o node recebido
-                            for i in range(5):
-                                if most_frequent[i] is None:
-                                    most_frequent[i] = returned_node
+                        if len(most_frequent) < 5:
+                            # Se há um espaço livre na lista, guarda lá o node recebido
+                            most_frequent.append(returned_node)
                         else:
                             # O array esta cheio, procura o node com a palavra menos frequente aí contida
                             for i in range(5):
