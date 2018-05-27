@@ -27,4 +27,16 @@ produz apenas um rácio de colisão de 29.8%
 Tamanho 1322963:
 SDMB -> 29.69%
 Anterior -> demora demasiado tempo
------------------------------------------------------------
+---------------------------Tempos-----------------------------
+Colocar o dicionario na tabela de dispersão -> 9.83s
+Erros de distancia2:
+	1 letra -> 0.0030s
+	2 letra -> 0.0050s
+	4 letra -> 0.0190s
+	8 letra -> 0.0648s
+Encontrar 5 mais frequentes e reais:
+	1 letra -> 0.015s
+	2 letra -> 0.042s
+	4 letra -> 0.163s
+	8 letra -> 0.857s
+Possível O(n^2) ao editar

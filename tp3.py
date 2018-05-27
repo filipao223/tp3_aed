@@ -1,4 +1,5 @@
 import sys
+import time
 
 pontos = ['!', '?', '.', ',', '<', '>', '(', ')', '$', '€', '@', '«', '»']
 alf = 'abcdefghijklmnopqrstuvwxyz'
