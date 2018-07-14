@@ -1,2 +1,2 @@
 # tp3_aed
-TP3 de AED
+TP3 da cadeira Algoritmos e Estruturas de Dados [AED]
